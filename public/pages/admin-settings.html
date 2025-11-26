@@ -4,12 +4,16 @@
         <div>
             <form id="settings-form">
                 <label>Header HTML</label>
-                <div id="editor-header" style="height: 300px; background: white;"></div>
+                <button type="button" id="toggle-header" style="margin-bottom:0.5rem;">Mostra Visuale</button>
+                <textarea id="header-code" style="width:100%;height:250px;font-family:monospace;display:block;"></textarea>
+                <div id="header-visual" contenteditable="true" style="width:100%;min-height:250px;border:1px solid #ccc;padding:1rem;background:white;display:none;"></div>
                 
-                <label>Footer HTML</label>
-                <div id="editor-footer" style="height: 300px; background: white;"></div>
+                <label style="margin-top:1rem;display:block;">Footer HTML</label>
+                <button type="button" id="toggle-footer" style="margin-bottom:0.5rem;">Mostra Visuale</button>
+                <textarea id="footer-code" style="width:100%;height:250px;font-family:monospace;display:block;"></textarea>
+                <div id="footer-visual" contenteditable="true" style="width:100%;min-height:250px;border:1px solid #ccc;padding:1rem;background:white;display:none;"></div>
                 
-                <button type="submit">Salva Impostazioni</button>
+                <button type="submit" style="margin-top:1rem;">Salva Impostazioni</button>
             </form>
         </div>
         <div>

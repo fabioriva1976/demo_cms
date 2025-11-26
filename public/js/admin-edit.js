@@ -76,14 +76,14 @@ export function initAdminEditPage(router, params) {
             
             try {
                 const generatePage = httpsCallable(window.functions, 'generatePageApi');
+                const currentContent = htmlCode.value || '';
                 const result = await generatePage({
                     prompt: prompt,
-                    currentHtml: htmlCode.value,
+                    currentHtml: currentContent,
                     history: conversationHistory
                 });
                 
                 const aiResponse = result.data.html;
-                // Salva l'HTML grezzo in un campo nascosto
                 let rawHtmlField = document.getElementById('raw-html');
                 if (!rawHtmlField) {
                     rawHtmlField = document.createElement('input');
@@ -93,7 +93,10 @@ export function initAdminEditPage(router, params) {
                 }
                 rawHtmlField.value = aiResponse;
                 htmlCode.value = aiResponse;
-                addMessage('assistant', 'Ho aggiornato il contenuto HTML');
+                if (!isCodeView) {
+                    editorDiv.innerHTML = aiResponse;
+                }
+                addMessage('assistant', 'Ho modificato il contenuto HTML');
                 conversationHistory.push({ role: 'assistant', content: 'Ho aggiornato il contenuto HTML' });
             } catch (error) {
                 console.error('Errore AI completo:', error);

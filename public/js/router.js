@@ -44,10 +44,13 @@ function matchRoute(path) {
 }
 
 async function router() {
+    console.log('Router chiamato, path:', window.location.pathname);
     const mainContent = document.getElementById('main-content');
     const adminSidebar = document.getElementById('admin-sidebar');
     const siteHeader = document.getElementById('site-header');
     const siteFooter = document.getElementById('site-footer');
+    
+    console.log('Elementi trovati:', {mainContent: !!mainContent, adminSidebar: !!adminSidebar, siteHeader: !!siteHeader, siteFooter: !!siteFooter});
     
     if (!mainContent) {
         console.error('main-content non trovato');
@@ -97,34 +100,41 @@ async function router() {
             adminSidebar.style.display = 'none';
             const slug = path === '/' ? 'home' : path.substring(1);
             
-            // Carica header e footer dal DB
-            try {
-                const settingsRef = doc(window.db, 'settings', 'site');
-                const settingsSnap = await getDoc(settingsRef);
-                if (settingsSnap.exists()) {
-                    const settings = settingsSnap.data();
-                    siteHeader.innerHTML = settings.headerHtml || '';
-                    siteFooter.innerHTML = settings.footerHtml || '';
-                    siteHeader.style.display = 'block';
-                    siteFooter.style.display = 'block';
-                } else {
-                    siteHeader.style.display = 'none';
-                    siteFooter.style.display = 'none';
-                }
-            } catch (error) {
-                console.error('Errore caricamento header/footer:', error);
+            console.log('Caricamento pagina frontend, slug:', slug);
+            
+            // Carica pagina e settings in parallelo
+            const [pageContent, settingsSnap] = await Promise.all([
+                loadPageFromDB(slug),
+                getDoc(doc(window.db, 'settings', 'site')).catch(() => null)
+            ]);
+            
+            console.log('Contenuto caricato, lunghezza:', pageContent.length);
+            
+            // Estrai solo il body se presente
+            let finalContent = pageContent;
+            const bodyMatch = pageContent.match(/<body[^>]*>(.*?)<\/body>/is);
+            if (bodyMatch) finalContent = bodyMatch[1];
+            
+            mainContent.innerHTML = finalContent;
+            
+            // Imposta header e footer
+            if (settingsSnap && settingsSnap.exists()) {
+                const settings = settingsSnap.data();
+                siteHeader.innerHTML = settings.headerHtml || '';
+                siteFooter.innerHTML = settings.footerHtml || '';
+                siteHeader.style.display = 'block';
+                siteFooter.style.display = 'block';
+            } else {
                 siteHeader.style.display = 'none';
                 siteFooter.style.display = 'none';
             }
-            
-            mainContent.innerHTML = await loadPageFromDB(slug);
         }
     } catch (error) {
-        console.error('Errore router:', error);
+        console.error('Errore router:', error, error.stack);
         siteHeader.style.display = 'none';
         siteFooter.style.display = 'none';
         adminSidebar.style.display = 'none';
-        mainContent.innerHTML = '<div style="padding:2rem;text-align:center;"><h1>404</h1><p>Pagina non trovata</p></div>';
+        mainContent.innerHTML = '<div style="padding:2rem;text-align:center;"><h1>404</h1><p>Pagina non trovata</p><p>' + error.message + '</p></div>';
     }
 }
 
@@ -151,9 +161,6 @@ onAuthStateChanged(window.auth, (user) => {
         router();
     } else if (user && path === '/login') {
         window.history.pushState({}, "", "/admin");
-        router();
-    } else if (!user && path === '/') {
-        window.history.pushState({}, "", "/login");
         router();
     } else {
         router();

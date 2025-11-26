@@ -42,21 +42,45 @@ exports.generatePageApi = onCall(
       }
 
       const conversationHistory = history || [];
-      const defaultPrompt = conversationHistory.length === 0
-        ? `Sei un web designer esperto. Crea una pagina HTML COMPLETA, moderna e professionale con contenuti reali e dettagliati. Includi:
-- Struttura HTML5 completa
-- CSS inline o in <style>
-- Testi reali e significativi (non placeholder)
-- Sezioni ben strutturate
-Rispondi SOLO con il codice HTML completo.`
-        : `Sei un web designer esperto. Modifica l'HTML esistente secondo le istruzioni dell'utente.
-
-HTML ATTUALE:
-${currentHtml}
-
-Rispondi SOLO con il nuovo codice HTML completo, mantenendo la struttura e migliorando secondo le istruzioni.`;
       
-      const systemPrompt = customPrompt || defaultPrompt;
+      // Carica tutte le pagine esistenti per mantenere lo stile coerente
+      let existingPages = '';
+      try {
+        const pagesSnapshot = await admin.firestore().collection('pages').where('published', '==', true).limit(5).get();
+        if (!pagesSnapshot.empty) {
+          existingPages = '\n\nPAGINE ESISTENTI (mantieni lo stesso stile CSS):\n';
+          pagesSnapshot.forEach(doc => {
+            const data = doc.data();
+            existingPages += `\n--- ${data.title} ---\n${data.content.substring(0, 2000)}\n`;
+          });
+        }
+      } catch (error) {
+        console.log('Nessuna pagina esistente trovata');
+      }
+      
+      // Costruisci il prompt di sistema
+      let systemPrompt = '';
+      if (customPrompt) {
+        systemPrompt = customPrompt;
+      } else {
+        systemPrompt = `Sei un web designer esperto. ${currentHtml ? 'MODIFICA' : 'CREA'} una pagina HTML COMPLETA, moderna e professionale.
+
+REGOLE IMPORTANTI:
+- Rispondi SOLO con codice HTML completo
+- MANTIENI lo stesso stile CSS delle pagine esistenti
+- NON usare immagini esterne (Unsplash, URL esterni)
+- Usa SOLO gradienti CSS per sfondi e decorazioni
+- Includi CSS inline o in <style>
+- Testi reali e significativi (non placeholder)
+- Struttura HTML5 completa`;
+      }
+      
+      systemPrompt += existingPages;
+      
+      // Se c'è HTML esistente, aggiungilo al contesto
+      if (currentHtml && currentHtml.trim()) {
+        systemPrompt += `\n\nHTML ATTUALE DA MODIFICARE:\n${currentHtml}`;
+      }
 
       const chatHistory = conversationHistory.map(msg => ({
         role: msg.role === 'user' ? 'user' : 'model',

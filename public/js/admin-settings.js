@@ -7,10 +7,50 @@ export function initAdminSettingsPage(router) {
     const aiPrompt = document.getElementById('ai-prompt');
     const sendAiBtn = document.getElementById('send-ai');
     const aiTarget = document.getElementById('ai-target');
-    const quillHeader = new Quill('#editor-header', { theme: 'snow' });
-    const quillFooter = new Quill('#editor-footer', { theme: 'snow' });
+    const headerCode = document.getElementById('header-code');
+    const headerVisual = document.getElementById('header-visual');
+    const footerCode = document.getElementById('footer-code');
+    const footerVisual = document.getElementById('footer-visual');
+    const toggleHeader = document.getElementById('toggle-header');
+    const toggleFooter = document.getElementById('toggle-footer');
 
     let conversationHistory = [];
+    let isHeaderCodeView = true;
+    let isFooterCodeView = true;
+
+    if (toggleHeader) {
+        toggleHeader.addEventListener('click', () => {
+            isHeaderCodeView = !isHeaderCodeView;
+            if (isHeaderCodeView) {
+                headerCode.value = headerVisual.innerHTML;
+                headerVisual.style.display = 'none';
+                headerCode.style.display = 'block';
+                toggleHeader.textContent = 'Mostra Visuale';
+            } else {
+                headerVisual.innerHTML = headerCode.value;
+                headerVisual.style.display = 'block';
+                headerCode.style.display = 'none';
+                toggleHeader.textContent = 'Mostra Codice';
+            }
+        });
+    }
+
+    if (toggleFooter) {
+        toggleFooter.addEventListener('click', () => {
+            isFooterCodeView = !isFooterCodeView;
+            if (isFooterCodeView) {
+                footerCode.value = footerVisual.innerHTML;
+                footerVisual.style.display = 'none';
+                footerCode.style.display = 'block';
+                toggleFooter.textContent = 'Mostra Visuale';
+            } else {
+                footerVisual.innerHTML = footerCode.value;
+                footerVisual.style.display = 'block';
+                footerCode.style.display = 'none';
+                toggleFooter.textContent = 'Mostra Codice';
+            }
+        });
+    }
 
     const addMessage = (role, content) => {
         const msg = document.createElement('div');
@@ -30,8 +70,8 @@ export function initAdminSettingsPage(router) {
             
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                quillHeader.root.innerHTML = data.headerHtml || '';
-                quillFooter.root.innerHTML = data.footerHtml || '';
+                headerCode.value = data.headerHtml || '';
+                footerCode.value = data.footerHtml || '';
             }
         } catch (error) {
             console.error('Errore caricamento:', error);
@@ -51,7 +91,7 @@ export function initAdminSettingsPage(router) {
             sendAiBtn.textContent = 'Generando...';
             
             try {
-                const currentHtml = target === 'header' ? quillHeader.root.innerHTML : quillFooter.root.innerHTML;
+                const currentHtml = target === 'header' ? headerCode.value : footerCode.value;
                 const generatePage = httpsCallable(window.functions, 'generatePageApi');
                 const result = await generatePage({
                     prompt: `Genera ${target === 'header' ? 'HEADER' : 'FOOTER'} HTML: ${prompt}`,
@@ -61,12 +101,14 @@ export function initAdminSettingsPage(router) {
                 
                 const aiResponse = result.data.html;
                 if (target === 'header') {
-                    quillHeader.root.innerHTML = aiResponse;
+                    headerCode.value = aiResponse;
+                    if (!isHeaderCodeView) headerVisual.innerHTML = aiResponse;
                 } else {
-                    quillFooter.root.innerHTML = aiResponse;
+                    footerCode.value = aiResponse;
+                    if (!isFooterCodeView) footerVisual.innerHTML = aiResponse;
                 }
-                addMessage('assistant', `Ho aggiornato il ${target}`);
-                conversationHistory.push({ role: 'assistant', content: `Ho aggiornato il ${target}` });
+                addMessage('assistant', `Ho modificato il ${target}`);
+                conversationHistory.push({ role: 'assistant', content: `Ho modificato il ${target}` });
             } catch (error) {
                 console.error('Errore AI:', error);
                 const errorMsg = error.message || error.code || 'Errore sconosciuto';
@@ -88,11 +130,14 @@ export function initAdminSettingsPage(router) {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            if (!isHeaderCodeView) headerCode.value = headerVisual.innerHTML;
+            if (!isFooterCodeView) footerCode.value = footerVisual.innerHTML;
+            
             try {
                 const docRef = doc(window.db, 'settings', 'site');
                 await setDoc(docRef, {
-                    headerHtml: quillHeader.root.innerHTML,
-                    footerHtml: quillFooter.root.innerHTML,
+                    headerHtml: headerCode.value,
+                    footerHtml: footerCode.value,
                     updatedAt: new Date()
                 });
                 alert('Impostazioni salvate!');
