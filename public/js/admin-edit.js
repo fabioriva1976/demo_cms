@@ -50,6 +50,8 @@ export function initAdminEditPage(router, params) {
                 const data = docSnap.data();
                 form.slug.value = data.slug;
                 form.title.value = data.title;
+                form.metaTitle.value = data.metaTitle || '';
+                form.metaDescription.value = data.metaDescription || '';
                 htmlCode.value = data.content;
                 form.published.checked = data.published;
                 conversationHistory = data.aiHistory || [];
@@ -134,6 +136,8 @@ export function initAdminEditPage(router, params) {
                 await updateDoc(docRef, {
                     slug: formData.get('slug'),
                     title: formData.get('title'),
+                    metaTitle: formData.get('metaTitle') || formData.get('title'),
+                    metaDescription: formData.get('metaDescription') || '',
                     content: finalContent,
                     published: formData.get('published') === 'on',
                     aiHistory: conversationHistory,

@@ -34,3 +34,8 @@ http://localhost:4000
 ## Github
 
 https://github.com/fabioriva1976/demo_cms
+
+
+## SITEMAP LOCALE
+
+http://localhost:5001/demo2-34a32/europe-west1/sitemap

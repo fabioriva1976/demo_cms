@@ -111,6 +111,8 @@ export function initAdminNewPage(router) {
                 await addDoc(collection(window.db, 'pages'), {
                     slug: formData.get('slug'),
                     title: formData.get('title'),
+                    metaTitle: formData.get('metaTitle') || formData.get('title'),
+                    metaDescription: formData.get('metaDescription') || '',
                     content: finalContent,
                     published: formData.get('published') === 'on',
                     aiHistory: conversationHistory,

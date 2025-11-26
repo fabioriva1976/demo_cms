@@ -14,6 +14,7 @@ const routes = [
     { path: "/admin/edit/:id", view: "/pages/admin-edit.html", isAdmin: true, init: initAdminEditPage },
     { path: "/admin/settings", view: "/pages/admin-settings.html", isAdmin: true, init: initAdminSettingsPage },
     { path: "/admin/prompt", view: "/pages/admin-prompt.html", isAdmin: true, init: initAdminPromptPage },
+
 ];
 
 async function loadHTML(url) {
@@ -25,7 +26,12 @@ async function loadPageFromDB(slug) {
     const q = query(collection(window.db, 'pages'), where('slug', '==', slug), where('published', '==', true));
     const snap = await getDocs(q);
     if (snap.empty) throw new Error(`Pagina non trovata: ${slug}`);
-    return snap.docs[0].data().content || '';
+    const data = snap.docs[0].data();
+    return {
+        content: data.content || '',
+        metaTitle: data.metaTitle || data.title || '',
+        metaDescription: data.metaDescription || ''
+    };
 }
 
 function matchRoute(path) {
@@ -103,16 +109,26 @@ async function router() {
             console.log('Caricamento pagina frontend, slug:', slug);
             
             // Carica pagina e settings in parallelo
-            const [pageContent, settingsSnap] = await Promise.all([
+            const [pageData, settingsSnap] = await Promise.all([
                 loadPageFromDB(slug),
                 getDoc(doc(window.db, 'settings', 'site')).catch(() => null)
             ]);
             
-            console.log('Contenuto caricato, lunghezza:', pageContent.length);
+            console.log('Contenuto caricato, lunghezza:', pageData.content.length);
+            
+            // Imposta meta tags
+            document.title = pageData.metaTitle;
+            let metaDesc = document.querySelector('meta[name="description"]');
+            if (!metaDesc) {
+                metaDesc = document.createElement('meta');
+                metaDesc.name = 'description';
+                document.head.appendChild(metaDesc);
+            }
+            metaDesc.content = pageData.metaDescription;
             
             // Estrai solo il body se presente
-            let finalContent = pageContent;
-            const bodyMatch = pageContent.match(/<body[^>]*>(.*?)<\/body>/is);
+            let finalContent = pageData.content;
+            const bodyMatch = pageData.content.match(/<body[^>]*>(.*?)<\/body>/is);
             if (bodyMatch) finalContent = bodyMatch[1];
             
             mainContent.innerHTML = finalContent;

@@ -22,4 +22,5 @@ exports.emailPasswordSecret = defineSecret("EMAIL_APP_PASSWORD");
 // Funzioni API (Callable)
 //exports.doSomethingApi = require("./api/doSomething").doSomethingApi;
 exports.generatePageApi = require("./api/generatePage").generatePageApi;
+exports.sitemap = require("./api/sitemap").sitemap;
 
