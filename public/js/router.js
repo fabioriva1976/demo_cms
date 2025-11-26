@@ -6,6 +6,7 @@ import { initLoginPage } from './login.js';
 import { initAdminEditPage } from './admin-edit.js';
 import { initAdminSettingsPage } from './admin-settings.js';
 import { initAdminPromptPage } from './admin-prompt.js';
+import { initAdminMediaPage } from './admin-media.js';
 
 const routes = [
     { path: "/login", view: "/pages/login.html", init: initLoginPage },
@@ -14,7 +15,7 @@ const routes = [
     { path: "/admin/edit/:id", view: "/pages/admin-edit.html", isAdmin: true, init: initAdminEditPage },
     { path: "/admin/settings", view: "/pages/admin-settings.html", isAdmin: true, init: initAdminSettingsPage },
     { path: "/admin/prompt", view: "/pages/admin-prompt.html", isAdmin: true, init: initAdminPromptPage },
-
+    { path: "/admin/media", view: "/pages/admin-media.html", isAdmin: true, init: initAdminMediaPage },
 ];
 
 async function loadHTML(url) {
@@ -85,6 +86,7 @@ async function router() {
                         <nav class="admin-nav">
                             <a href="/admin" data-link>Dashboard Pagine</a>
                             <a href="/admin/new" data-link>Nuova Pagina</a>
+                            <a href="/admin/media" data-link>Media Library</a>
                             <a href="/admin/settings" data-link>Header & Footer</a>
                             <a href="/admin/prompt" data-link>Prompt AI</a>
                         </nav>
