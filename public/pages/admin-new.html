@@ -1,0 +1,13 @@
+<div class="admin-panel">
+    <h2>Nuovo Contenuto</h2>
+    <form onsubmit="saveContent(event)">
+        <input type="text" name="slug" placeholder="Slug (es: about)" required>
+        <input type="text" name="title" placeholder="Titolo" required>
+        <textarea name="content" placeholder="Contenuto" rows="10" required></textarea>
+        <select name="template" required>
+            <option value="template1">Template 1</option>
+            <option value="template2">Template 2</option>
+        </select>
+        <button type="submit">Salva</button>
+    </form>
+</div>

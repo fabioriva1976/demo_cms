@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMS</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.snow.css">
+</head>
+<body>
+    <!-- I placeholder per i contenuti dinamici del frontend -->
+    <header id="site-header"></header>
+    <main id="app"></main> <!-- Il router SPA lavora qui -->
+    <footer id="site-footer"></footer>
+    
+    <script type="module">
+        // --- 1. FUNZIONE ASINCRONA PER LA CONNESSIONE AGLI EMULATORI ---
+        async function connectToEmulators() {
+            // Importa dinamicamente solo le funzioni necessarie per la connessione
+            const { connectAuthEmulator } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+            const { connectFirestoreEmulator } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+            const { connectFunctionsEmulator } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js');
+
+            connectAuthEmulator(window.auth, 'http://localhost:9099', { disableWarnings: true });
+            connectFirestoreEmulator(window.db, 'localhost', 8080);
+            connectFunctionsEmulator(window.functions, 'localhost', 5001);
+        }
+
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, connectAuthEmulator } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, connectFirestoreEmulator, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFunctions, connectFunctionsEmulator } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js';
+        
+        // Funzione per caricare header e footer globali
+        async function loadGlobalParts(db) {
+            const headerEl = document.getElementById('site-header');
+            const footerEl = document.getElementById('site-footer');
+            
+            try {
+                const docRef = doc(db, 'settings', 'siteContent');
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (headerEl) headerEl.innerHTML = data.headerHtml || '';
+                    if (footerEl) footerEl.innerHTML = data.footerHtml || '';
+                }
+            } catch (error) {
+                console.error("Errore caricamento parti globali:", error);
+            }
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCrRQ8nn5n5SG0j-u_r1cuxly3bzq59AO8",
+            authDomain: "rhcostruzioni-200a3.firebaseapp.com",
+            projectId: "rhcostruzioni-200a3",
+            storageBucket: "rhcostruzioni-200a3.firebasestorage.app",
+            messagingSenderId: "940025240088",
+            appId: "1:940025240088:web:59ddcec0868b9e2a8a016d"
+        };        
+
+        const app = initializeApp(firebaseConfig);
+        window.auth = getAuth(app);
+        window.db = getFirestore(app);
+        window.functions = getFunctions(app, 'europe-west1');
+        
+        // --- 2. LOGICA PRINCIPALE ASINCRONA ---
+        async function main() {
+            if (location.hostname === 'localhost') {
+                console.log("🔌 Connessione agli emulatori Firebase...");
+                await connectToEmulators();
+                console.log("✅ Connesso agli emulatori.");
+            }
+
+            // Carica header e footer globali
+            await loadGlobalParts(window.db);
+
+            // --- 3. CARICA DINAMICAMENTE GLI ALTRI SCRIPT SOLO DOPO LA CONNESSIONE ---
+            const scripts = ['/js/auth.js', '/js/admin.js', '/js/adminContent.js', '/js/admin-new.js', '/js/admin-edit.js', '/js/router.js'];
+            for (const src of scripts) {
+                const script = document.createElement('script');
+                script.src = src;
+                script.type = 'module';
+                document.body.appendChild(script);
+            }
+        }
+
+        main(); // Avvia la logica principale
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.js"></script>
+</body>
+</html>
