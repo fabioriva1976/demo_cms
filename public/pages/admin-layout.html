@@ -1,12 +1,15 @@
 <div class="admin-container">
     <aside class="admin-sidebar">
-        <div class="admin-sidebar__header">
-            <h3>Pannello Admin</h3>
+        <div style="padding:1rem;border-bottom:1px solid #ddd;">
+            <h3 style="margin:0;font-size:1.2rem;">CMS Admin</h3>
         </div>
-        <nav class="admin-sidebar__nav">
-            <a href="/admin" data-link>Contenuti</a>
-            <a href="/admin/settings" data-link>Parti Globali</a>
+        <nav class="admin-nav">
+            <a href="/admin" data-link>Dashboard Pagine</a>
+            <a href="/admin/new" data-link>Nuova Pagina</a>
         </nav>
+        <div style="padding:1rem;margin-top:auto;">
+            <button onclick="window.logout()" style="width:100%;padding:0.5rem;background:#dc3545;color:white;border:none;border-radius:4px;cursor:pointer;">Logout</button>
+        </div>
     </aside>
-    <main class="admin-main-content" id="admin-content"></main>
+    <main id="admin-content" class="admin-main-content"></main>
 </div>

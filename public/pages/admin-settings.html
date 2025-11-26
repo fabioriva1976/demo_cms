@@ -1,0 +1,31 @@
+<div class="admin-panel">
+    <h1>Impostazioni Header e Footer</h1>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+        <div>
+            <form id="settings-form">
+                <label>Header HTML</label>
+                <div id="editor-header" style="height: 300px; background: white;"></div>
+                
+                <label>Footer HTML</label>
+                <div id="editor-footer" style="height: 300px; background: white;"></div>
+                
+                <button type="submit">Salva Impostazioni</button>
+            </form>
+        </div>
+        <div>
+            <h3>Chat AI</h3>
+            <div style="margin-bottom:1rem;">
+                <label style="display:block;margin-bottom:0.5rem;">Genera:</label>
+                <select id="ai-target" style="width:100%;padding:0.5rem;">
+                    <option value="header">Header</option>
+                    <option value="footer">Footer</option>
+                </select>
+            </div>
+            <div id="chat-history" style="height:300px;overflow-y:auto;border:1px solid #ddd;padding:1rem;background:#f9f9f9;margin-bottom:1rem;"></div>
+            <div style="display:flex;gap:0.5rem;">
+                <input type="text" id="ai-prompt" placeholder="Descrivi header o footer..." style="flex:1;">
+                <button type="button" id="send-ai" style="width:auto;">Invia</button>
+            </div>
+        </div>
+    </div>
+</div>

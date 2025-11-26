@@ -1,13 +1,33 @@
 <div class="admin-panel">
-    <h2>Modifica Contenuto</h2>
-    <form id="editForm">
-        <input type="text" name="slug" required>
-        <input type="text" name="title" required>
-        <textarea name="content" rows="10" required></textarea>
-        <select name="template" required>
-            <option value="template1">Template 1</option>
-            <option value="template2">Template 2</option>
-        </select>
-        <button type="submit">Aggiorna</button>
-    </form>
+    <h1>Modifica Pagina</h1>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+        <div>
+            <form id="edit-page-form">
+                <label>Slug (URL)</label>
+                <input type="text" name="slug" required>
+                
+                <label>Titolo</label>
+                <input type="text" name="title" required>
+                
+                <label>Contenuto HTML</label>
+                <button type="button" id="toggle-view" style="margin-bottom:0.5rem;width:auto;">Mostra Visuale</button>
+                <div id="editor" contenteditable="true" style="height: 400px; background: white; border:1px solid #ddd; padding:1rem; overflow-y:auto; display:none;"></div>
+                <textarea id="html-code" style="height: 400px; font-family: monospace; font-size: 0.9rem; width:100%; padding:0.5rem; border:1px solid #ddd;" placeholder="L'HTML generato dall'AI apparirà qui..."></textarea>
+                
+                <label>
+                    <input type="checkbox" name="published"> Pubblica
+                </label>
+                
+                <button type="submit">Aggiorna Pagina</button>
+            </form>
+        </div>
+        <div>
+            <h3>Chat AI</h3>
+            <div id="chat-history" style="height:400px;overflow-y:auto;border:1px solid #ddd;padding:1rem;background:#f9f9f9;margin-bottom:1rem;"></div>
+            <div style="display:flex;gap:0.5rem;">
+                <input type="text" id="ai-prompt" placeholder="Descrivi come vuoi modificare la pagina..." style="flex:1;">
+                <button type="button" id="send-ai" style="width:auto;">Invia</button>
+            </div>
+        </div>
+    </div>
 </div>

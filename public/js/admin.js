@@ -1,5 +1,4 @@
-import { collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { db } from './firebase-config.js';
+import { collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 export function initAdminPage(router) { // <-- Accetta il router come parametro
     console.log("Pagina Admin inizializzata.");
@@ -18,7 +17,7 @@ export function initAdminPage(router) { // <-- Accetta il router come parametro
     const loadContent = async () => {
         contentList.innerHTML = '<li>Caricamento...</li>';
         try {
-            const querySnapshot = await getDocs(collection(db, "pages"));
+            const querySnapshot = await getDocs(collection(window.db, "pages"));
             contentList.innerHTML = ''; // Pulisce la lista
             if (querySnapshot.empty) {
                 contentList.innerHTML = '<li>Nessun contenuto trovato.</li>';
@@ -27,15 +26,30 @@ export function initAdminPage(router) { // <-- Accetta il router come parametro
             querySnapshot.forEach((doc) => {
                 const content = doc.data();
                 const li = document.createElement('li');
+                li.style.display = 'grid';
+                li.style.gridTemplateColumns = '2fr 1fr auto';
+                li.style.gap = '1rem';
+                li.style.alignItems = 'center';
                 li.innerHTML = `
-                    <span>${content.title} (/${content.slug})</span>
-                    <div>
+                    <span>${content.title}</span>
+                    <a href="/${content.slug}" target="_blank" style="color:#007bff;text-decoration:none;">/${content.slug} ↗</a>
+                    <div class="btn-group">
                         <button class="btn-edit" data-id="${doc.id}">Modifica</button>
                         <button class="btn-delete" data-id="${doc.id}">Elimina</button>
                     </div>
                 `;
                 li.querySelector('.btn-edit').addEventListener('click', (e) => router.navigate(`/admin/edit/${e.target.dataset.id}`));
-                li.querySelector('.btn-delete').addEventListener('click', (e) => console.log('Delete ' + e.target.dataset.id)); // Logica di eliminazione da implementare
+                li.querySelector('.btn-delete').addEventListener('click', async (e) => {
+                    if (confirm('Sei sicuro di voler eliminare questa pagina?')) {
+                        try {
+                            await deleteDoc(doc(window.db, 'pages', e.target.dataset.id));
+                            loadContent();
+                        } catch (error) {
+                            console.error('Errore eliminazione:', error);
+                            alert('Errore nell\'eliminazione');
+                        }
+                    }
+                });
                 contentList.appendChild(li);
             });
         } catch (error) {

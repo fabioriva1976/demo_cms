@@ -9,7 +9,6 @@ exports.timezone = "Europe/Rome";
 
 //config Gemini
 exports.geminiModel = "gemini-2.5-flash"
-exports.geminiApiKey = defineSecret("AIzaSyCkVXMfrzhidqbSguxQfRZH2Xwh8ZDPXS4"); // Uso il nome con _SECRET per chiarezza
 
 //config mail
 exports.emailSender = 'fabio.riva@avirin.it';
