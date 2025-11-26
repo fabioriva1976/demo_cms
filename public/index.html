@@ -42,8 +42,9 @@
             connectAuthEmulator(window.auth, 'http://localhost:9099', { disableWarnings: true });
             connectFirestoreEmulator(window.db, 'localhost', 8080);
             connectFunctionsEmulator(window.functions, 'localhost', 5001);
-            connectStorageEmulator(window.storage, 'localhost', 9299);
-            console.log("✅ Connesso agli emulatori.");
+            // Storage usa produzione anche in locale per persistenza
+            // connectStorageEmulator(window.storage, 'localhost', 9299);
+            console.log("✅ Connesso agli emulatori (Storage in produzione).");
         }
 
         // Carica il router

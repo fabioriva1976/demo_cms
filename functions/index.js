@@ -12,7 +12,7 @@ exports.geminiModel = "gemini-2.5-flash"
 
 //config mail
 exports.emailSender = 'fabio.riva@avirin.it';
-exports.emailPasswordSecret = defineSecret("EMAIL_APP_PASSWORD");
+
 
 // --- ESPORTAZIONE DELLE FUNZIONI ---
 
